@@ -1,0 +1,209 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using SharpDX.X3DAudio;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+
+namespace NuclearWinter.Framework
+{
+
+    public class UIGraph : UI
+    {
+        public Color Color = Color.White;
+        public Texture2D GridTexture;
+        public float PixelSize = 3;
+        public Viewport2 ViewingWindow;
+        public List<Vector2> Graph = new List<Vector2>();
+        public Vector2 Bounds;
+        /// <summary>
+        /// zoom = 
+        /// </summary>
+        public UIGraph(UIContainer container, SpriteBatch spriteBatch, ContentManager content, Func<double, double> f, Vector2 bounds, Texture2D pixelTexture, float pixelSize, Texture2D gridTexture, Viewport2 viewWin, Rectangle rect, Vector2 angle, Color color, string name, List<Vector2> table) : base(spriteBatch, content)
+        {
+            Bounds = bounds;
+            Texture = pixelTexture;
+            PixelSize = pixelSize;
+            GridTexture = gridTexture;
+            ViewingWindow = viewWin;
+            Rect = rect;
+            Position = Rect.Location.ToVector2();
+            Size = Rect.Size.ToVector2();
+            Angle = angle;
+            Color = color;
+            Name = name;
+            SpriteBatch = spriteBatch;
+            Content = content;
+            Container = container;
+            Graph = table;
+
+            spriteBatch.GraphicsDevice.ScissorRectangle = rect;
+            CreateGraph(Graph, ViewingWindow, Texture, GridTexture, Rect, Angle, f, Bounds);
+        }
+        public void CreateGraph(List<Vector2> table, Viewport2 viewWin, Texture2D texture, Texture2D gridTexture, Rectangle rect, Vector2 angle, Func<double, double> f, Vector2 bounds)
+        {
+            float posX1;
+            float posY1;
+            float posX2;
+            float posY2;
+            float distanceBetween;
+
+            Vector2 pos1;
+            Vector2 pos2;
+            float angle2;
+
+            SpriteBatch.Draw(Main.pixelTexture, rect, null, new Color(10, 10, 10), (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, SpriteEffects.None, 0f);
+            //SpriteBatch.Draw(Main.pixelTexture, new Vector2(viewWin.minX, viewWin.minY), null, Color.Red, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, PixelSize, SpriteEffects.None, 0f);
+            //SpriteBatch.Draw(Main.pixelTexture, new Vector2(viewWin.maxX, viewWin.maxY), null, Color.Red, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, PixelSize, SpriteEffects.None, 0f);
+
+            SpriteBatch.Draw(Main.pixelTexture, new Vector2(rect.X, 0) + new Vector2(rect.X, rect.Y) - new Vector2(viewWin.minX, -viewWin.minY) + new Vector2(-100, -PixelSize / 2), null, Color.Red, 0f, new Vector2(0, 0), new Vector2(rect.Width * 100, PixelSize), SpriteEffects.None, 0f);
+            SpriteBatch.Draw(Main.pixelTexture, new Vector2(rect.Height, -rect.Y) + new Vector2(rect.X, rect.Y) - new Vector2(viewWin.minX, -viewWin.minY) + new Vector2(-PixelSize / 2, -100), null, Color.Blue, 0f, new Vector2(0, 0), new Vector2(PixelSize, rect.Height * 100), SpriteEffects.None, 0f);
+            SpriteBatch.Draw(Main.pixelTexture, new Vector2(rect.Right, rect.Top), null, Color.Red, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, PixelSize, SpriteEffects.None, 0f);
+
+            int BoundsX = (int)float.Round(bounds.X);
+            int BoundsY = (int)float.Round(bounds.Y) + 1;
+            if (table.Count > 0)
+            {
+                BoundsX = 0;
+                BoundsY = table.Count;
+            }
+            else
+            {
+                BoundsX = (int)float.Round(bounds.X);
+                BoundsY = (int)float.Round(bounds.Y) + 1;
+            }
+
+            for (int i = BoundsX; i < BoundsY; i++) // viewWin.maxX
+            {
+                Vector2 ourPos;
+                if (table.Count > 0)
+                {
+                    ourPos = new Vector2(table[i].X, -(float)table[i].Y) + new Vector2(rect.X, rect.Y) - new Vector2(-viewWin.minX, -viewWin.minY);
+                }
+                else
+                {
+                    ourPos = new Vector2(i/* + viewWin.maxX*/, -(float)f(i)) + new Vector2(rect.X, rect.Y) - new Vector2(-viewWin.minX, -viewWin.minY);
+                }
+                if (rect.Contains(ourPos))
+                {
+                    SpriteBatch.Draw(texture, ourPos, null, Color, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, PixelSize, SpriteEffects.None, 0f);
+                    if (i + 1 < BoundsY)
+                    {
+                        posX2 = (i + 1) + rect.X - -viewWin.minX;
+                        posY2 = -(float)f(i+1) + rect.Y - -viewWin.minY;
+                        pos1 = ourPos;
+                        pos2 = new Vector2(posX2, posY2);
+                        distanceBetween = Vector2.Distance(ourPos, new Vector2(posX2, posY2)); // distance between current point and next point
+                        angle2 = (float)(Math.Atan2(pos2.Y - ourPos.Y, pos2.X - ourPos.X)/* - Math.Atan2(pos2.Y, pos2.X)*/); // find angle between current point and next point
+                        SpriteBatch.Draw(Main.pixelTexture, ourPos, null, Color.White, angle2, Vector2.Zero, new Vector2(distanceBetween, PixelSize), SpriteEffects.None, 0f);
+                    }
+                }
+            }
+
+        }
+    }
+}
+////work on ts shit later
+
+//using Microsoft.Xna.Framework;
+//using Microsoft.Xna.Framework.Content;
+//using Microsoft.Xna.Framework.Graphics;
+//using SharpDX.X3DAudio;
+//using System;
+//using System.Collections.Generic;
+//using System.Diagnostics;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+
+
+//namespace NuclearWinter.Framework
+//{
+//    public class UIGraph : UI
+//    {
+//        public Color Color = Color.White;
+//        public Texture2D GridTexture;
+//        public float PixelSize = 3;
+//        public Viewport2 ViewingWindow;
+//        public List<Vector2> Graph = new List<Vector2>();
+//        public Vector2 Bounds;
+//        public UIGraph(UIContainer container, SpriteBatch spriteBatch, ContentManager content, Func<double, double> f, Vector2 bounds, Texture2D pixelTexture, float pixelSize, Texture2D gridTexture, Viewport2 viewWin, Rectangle rect, Vector2 angle, Color color, string name) : base(spriteBatch, content)
+//        {
+//            Bounds = bounds;
+//            Texture = pixelTexture;
+//            PixelSize = pixelSize;
+//            GridTexture = gridTexture;
+//            ViewingWindow = viewWin;
+//            Rect = rect;
+//            Position = Rect.Location.ToVector2();
+//            Size = Rect.Size.ToVector2();
+//            Angle = angle;
+//            Color = color;
+//            Name = name;
+//            SpriteBatch = spriteBatch;
+//            Content = content;
+//            Container = container;
+//            Graph = Calculate(f, Bounds);
+//            CreateGraph(Graph, ViewingWindow, Texture, GridTexture, Rect, Angle, f); 
+//        }
+//        public List<Vector2> Calculate(Func<double, double> f, Vector2 bounds /*, Viewport2 viewport*/)
+//        {
+//            List<Vector2> tempGraph = new List<Vector2>();
+//            double x = (int)float.Round(bounds.X);
+//            double y = 0;
+//            for (int i = (int)float.Round(bounds.X); i < (int)float.Round(bounds.Y) + 1; i++)
+//            {
+//                x = i;
+//                y = f(i);
+//                tempGraph.Add(new Vector2((float)x, (float)y));
+//            }
+//            return tempGraph;
+//        }
+//        //    public void CreateGraph(List<Vector2> table, Viewport2 viewWin, Texture2D texture, Texture2D gridTexture, Rectangle rect, Vector2 angle)
+//        //    {
+//        //        SpriteBatch.Draw(Main.pixelTexture, rect, null, Color.DarkGray, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, SpriteEffects.None, 0f);
+
+//        //        //float scaleX = (float)rect.Width / (viewWin.maxX - viewWin.minX);
+//        //        //float scaleY = (float)rect.Height / (viewWin.maxY - viewWin.minY);
+//        //        SpriteBatch.Draw(Main.pixelTexture, new Vector2(viewWin.minX /** scaleX*/ + rect.X, viewWin.minY /** scaleY*/ + rect.Y), null, Color.Red, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, PixelSize, SpriteEffects.None, 0f);
+//        //        SpriteBatch.Draw(Main.pixelTexture, new Vector2(viewWin.maxX /** scaleX*/ + rect.X, viewWin.maxY /** scaleY*/ + rect.Y), null, Color.Red, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, PixelSize, SpriteEffects.None, 0f);
+
+//        //        Vector2 ourBounds = new Vector2(table[0].X, table[table.Count-1].X);
+//        //        for (int i = 0; i < table.Count; i++)
+//        //        {
+//        //            if (viewWin.Contains(new Vector2(table[i].X, table[i].Y)))
+//        //            {
+//        //                Debug.WriteLine(new Vector2(
+//        //                    (table[i].X - viewWin.minX) /** scaleX*/,
+//        //                    (viewWin.maxY - (table[i].Y - viewWin.minY)) /** scaleY*/
+//        //                    ).ToString());
+//        //                SpriteBatch.Draw(texture, new Vector2(
+//        //                    (table[i].X - viewWin.minX) /** scaleX*/,
+//        //                    (viewWin.maxY - (table[i].Y - viewWin.minY)) /** scaleY*/
+//        //                    ) + new Vector2(rect.X, rect.Y), null, Color, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, PixelSize, SpriteEffects.None, 0f);
+//        //            }
+//        //        }
+
+//        //        Debug.WriteLine("end");
+//        //    }
+//        //}
+//        public void CreateGraph(List<Vector2> table, Viewport2 viewWin, Texture2D texture, Texture2D gridTexture, Rectangle rect, Vector2 angle, Func<double, double> f)
+//        {
+//            SpriteBatch.Draw(Main.pixelTexture, rect, null, Color.DarkGray, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, SpriteEffects.None, 0f);
+
+//            for (int i = 0; i < table.Count - PixelSize; i++) // viewWin.maxX
+//            {
+//                Vector2 ourPos = new Vector2(i, (float)f(i - (viewWin.minX + viewWin.maxX)) + viewWin.Height * 0.75f) + new Vector2(rect.X, rect.Y));
+//                if (viewWin.Contains())
+//                {
+//                    SpriteBatch.Draw(texture, ourPos, null, Color, (float)Math.Atan2(angle.Y, angle.X), Vector2.Zero, PixelSize, SpriteEffects.None, 0f);
+//                }
+//            }
+//        }
+//    }
+//}

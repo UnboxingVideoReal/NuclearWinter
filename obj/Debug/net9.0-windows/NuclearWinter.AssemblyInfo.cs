@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NuclearWinter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bd5154bb3e9209f86a8ca53314ed633a831c7577")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a20092da7469a7250f86e7d0b0e3b28e5a8323c0")]
 [assembly: System.Reflection.AssemblyProductAttribute("NuclearWinter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NuclearWinter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
